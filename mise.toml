@@ -4,8 +4,9 @@ node = "22"
 gh = "latest"
 
 [tasks.install]
-description = "Install dependencies"
-run = "bun install"
+description = "Reinstall locked dependencies, including native bindings"
+# Restore native bindings even when dependencies were cached without scripts.
+run = "bun install --frozen-lockfile --force"
 
 [tasks.build]
 description = "Type-check and emit lib/ for every package"
