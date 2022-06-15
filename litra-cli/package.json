@@ -2,8 +2,24 @@
   "name": "@ryanwersal/litra-cli",
   "version": "0.0.1",
   "description": "CLI for controlling Logi Litra",
-  "main": "index.js",
+  "keywords": [
+    "logitech",
+    "litra",
+    "cli"
+  ],
   "license": "MIT",
+  "homepage": "https://github.com/ryanwersal/litra",
+  "bugs": {
+    "url": "https://github.com/ryanwersal/litra/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ryanwersal/litra.git"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
   "bin": {
     "litra": "bin/run"
   },

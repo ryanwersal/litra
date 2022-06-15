@@ -4,7 +4,8 @@
     "build": "turbo run build",
     "lint": "turbo run lint",
     "test": "turbo run test",
-    "changeset": "changeset"
+    "release": "turbo run release && changeset publish",
+    "version": "changeset version"
   },
   "devDependencies": {
     "@changesets/cli": "^2.23.0",

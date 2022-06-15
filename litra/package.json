@@ -2,6 +2,23 @@
   "name": "@ryanwersal/litra",
   "version": "0.0.1",
   "description": "Library for controlling Logi Litra",
+  "keywords": [
+    "logitech",
+    "litra"
+  ],
+  "license": "MIT",
+  "homepage": "https://github.com/ryanwersal/litra",
+  "bugs": {
+    "url": "https://github.com/ryanwersal/litra/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ryanwersal/litra.git"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
   "scripts": {
@@ -9,7 +26,6 @@
     "lint": "eslint",
     "test": "jest"
   },
-  "license": "MIT",
   "dependencies": {
     "node-hid": "^2.1.1"
   },

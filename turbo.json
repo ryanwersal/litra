@@ -12,6 +12,10 @@
     "test": {
       "dependsOn": ["build"],
       "outputs": []
+    },
+    "release": {
+      "dependsOn": ["build", "lint"],
+      "outputs": []
     }
   }
 }
