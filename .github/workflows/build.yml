@@ -1,6 +1,12 @@
 name: Build
 
-on: [push]
+on:
+  push:
+    branches:
+      - "!main"
+  pull_request:
+    branches:
+      - "*"
 
 jobs:
   build:
@@ -20,8 +26,5 @@ jobs:
         with:
           run_install: true
 
-      - name: Lint
-        run: pnpm run lint
-
-      - name: Build
-        run: pnpm run build
+      - name: CI
+        run: pnpm run ci

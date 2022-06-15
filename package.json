@@ -4,6 +4,7 @@
     "build": "turbo run build",
     "lint": "turbo run lint",
     "test": "turbo run test",
+    "ci": "turbo run ci",
     "release": "turbo run release && changeset publish",
     "version": "changeset version"
   },
