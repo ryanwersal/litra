@@ -1,5 +1,11 @@
 import { Command, Flags } from "@oclif/core";
+import Conf from "conf";
 import { turnOn, setBrightness, setTemperature } from "@ryanwersal/litra";
+
+interface LastValues {
+  brightness: number;
+  temperature: number;
+}
 
 export default class OnCommand extends Command {
   static description = "Turn on Litra";
@@ -16,20 +22,45 @@ export default class OnCommand extends Command {
   };
 
   async run() {
+    const config = new Conf({
+      schema: {
+        lastValues: {
+          type: "object",
+          properties: {
+            brightness: {
+              type: "number",
+              minimum: 1,
+              maximum: 100,
+              default: 50,
+            },
+            temperature: {
+              type: "number",
+              minimum: 2700,
+              maximum: 6500,
+              default: 3000,
+            },
+          },
+        },
+      },
+    });
+
     const {
       flags: { brightness, temperature },
     } = await this.parse(OnCommand);
 
-    console.log(brightness, temperature);
+    const lastValues = config.get<string, LastValues>("lastValues", {
+      brightness: 50,
+      temperature: 3000,
+    });
+    const values: LastValues = {
+      brightness: brightness ?? lastValues.brightness,
+      temperature: temperature ?? lastValues.temperature,
+    };
 
     turnOn();
+    setBrightness(values.brightness);
+    setTemperature(values.temperature);
 
-    if (brightness) {
-      setBrightness(brightness);
-    }
-
-    if (temperature) {
-      setTemperature(temperature);
-    }
+    config.set("lastValues", values);
   }
 }

@@ -39,7 +39,8 @@
     "oclif": "^3.0.1",
     "@oclif/core": "^1.9.0",
     "@oclif/plugin-help": "^5.1.12",
-    "@oclif/plugin-warn-if-update-available": "^2.0.4"
+    "@oclif/plugin-warn-if-update-available": "^2.0.4",
+    "conf": "^10.1.2"
   },
   "devDependencies": {
     "@oclif/test": "^2.1.0",
