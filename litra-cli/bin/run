@@ -1,6 +1,2 @@
-#!/usr/bin/env node
-
-const { run, flush } = require("@oclif/core");
-const handle = require("@oclif/core/handle");
-
-run().then(flush).catch(handle);
+#!/usr/bin/env bun
+require("../lib/index.js");

@@ -1,11 +1,11 @@
 {
+  "extends": "../tsconfig.base.json",
   "compilerOptions": {
-    "strict": true,
-    "target": "ES2020",
-    "module": "commonjs",
-    "lib": ["ES2020"],
+    "rootDir": "src",
     "outDir": "lib",
-    "types": ["node"]
+    "tsBuildInfoFile": "lib/.tsbuildinfo"
   },
-  "include": ["src"]
+  "references": [{ "path": "../litra" }],
+  "include": ["src/**/*.ts"],
+  "exclude": ["src/**/*.test.ts", "src/testing.ts"]
 }

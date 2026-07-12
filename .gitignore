@@ -1,5 +1,5 @@
 node_modules
-.turbo
-dist
 lib
-oclif.manifest.json
+dist
+*.tsbuildinfo
+.DS_Store
