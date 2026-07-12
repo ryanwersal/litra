@@ -1,148 +1,83 @@
 import { HID } from "node-hid";
 import {
-  vendorId,
-  productId,
-  lightOn,
   lightOff,
-  minBrightness,
+  lightOn,
   maxBrightness,
+  minBrightness,
+  productId,
+  vendorId,
 } from "./constants";
 
-const getLitra = (): HID => {
-  const device = new HID(vendorId, productId);
-  if (!device) {
-    throw new Error("Failed to find Logi Litra to control.");
-  }
-  device.on("data", console.log);
-  device.on("error", console.log);
-  return device;
+const REPORT_LENGTH = 21;
+
+const report = (...payload: number[]): number[] => {
+  const data = [0x00, ...payload];
+  return data.concat(new Array(REPORT_LENGTH - data.length).fill(0x00));
 };
 
-export const turnOn = () => {
-  const device = getLitra();
-  device.write([
-    0x00,
-    0x11,
-    0xff,
-    0x04,
-    0x1c,
-    lightOn,
-    0x00,
-    0x00,
-    0x00,
-    0x00,
-    0x00,
-    0x00,
-    0x00,
-    0x00,
-    0x00,
-    0x00,
-    0x00,
-    0x00,
-    0x00,
-    0x00,
-    0x00,
-  ]);
-  device.close();
-};
+const scaleBrightness = (level: number): number =>
+  Math.floor(minBrightness + (level / 100) * (maxBrightness - minBrightness));
 
-export const turnOff = () => {
-  const device = getLitra();
-  device.write([
-    0x00,
-    0x11,
-    0xff,
-    0x04,
-    0x1c,
-    lightOff,
-    0x00,
-    0x00,
-    0x00,
-    0x00,
-    0x00,
-    0x00,
-    0x00,
-    0x00,
-    0x00,
-    0x00,
-    0x00,
-    0x00,
-    0x00,
-    0x00,
-    0x00,
-  ]);
-  device.close();
-};
+export class Litra implements Disposable {
+  private readonly device: HID;
 
-export const setBrightness = (level: number) => {
-  if (level < 1 || level > 100) {
-    throw new Error("Invalid brightness specified. Must be between 1 and 100.");
+  constructor() {
+    try {
+      this.device = new HID(vendorId, productId);
+    } catch (cause) {
+      throw new Error("Unable to find a Logitech Litra to control.", { cause });
+    }
   }
 
-  const device = getLitra();
-  const clampedLevel = Math.floor(
-    minBrightness + (level / 100) * (maxBrightness - minBrightness)
-  );
-  device.write([
-    0x00,
-    0x11,
-    0xff,
-    0x04,
-    0x4c,
-    0x00,
-    clampedLevel,
-    0x00,
-    0x00,
-    0x00,
-    0x00,
-    0x00,
-    0x00,
-    0x00,
-    0x00,
-    0x00,
-    0x00,
-    0x00,
-    0x00,
-    0x00,
-    0x00,
-  ]);
-  device.close();
-};
+  on(): void {
+    this.device.write(report(0x11, 0xff, 0x04, 0x1c, lightOn));
+  }
 
-export const setTemperature = (temp: number) => {
-  if (temp < 2700 || temp > 6500) {
-    throw new Error(
-      "Invalid temperature specified. Must be between 2700 and 6500."
+  off(): void {
+    this.device.write(report(0x11, 0xff, 0x04, 0x1c, lightOff));
+  }
+
+  setBrightness(level: number): void {
+    if (!Number.isInteger(level) || level < 1 || level > 100) {
+      throw new RangeError("Brightness must be an integer between 1 and 100.");
+    }
+    this.device.write(
+      report(0x11, 0xff, 0x04, 0x4c, 0x00, scaleBrightness(level)),
     );
   }
 
-  const arr = new ArrayBuffer(2);
-  const view = new DataView(arr);
-  view.setInt16(0, temp, false);
-  const bytes = [view.getInt8(0), view.getInt8(1)];
+  setTemperature(temp: number): void {
+    if (!Number.isInteger(temp) || temp < 2700 || temp > 6500) {
+      throw new RangeError(
+        "Temperature must be an integer between 2700 and 6500.",
+      );
+    }
+    this.device.write(
+      report(0x11, 0xff, 0x04, 0x9c, (temp >> 8) & 0xff, temp & 0xff),
+    );
+  }
 
-  const device = getLitra();
-  device.write([
-    0x00,
-    0x11,
-    0xff,
-    0x04,
-    0x9c,
-    ...bytes,
-    0x00,
-    0x00,
-    0x00,
-    0x00,
-    0x00,
-    0x00,
-    0x00,
-    0x00,
-    0x00,
-    0x00,
-    0x00,
-    0x00,
-    0x00,
-    0x00,
-  ]);
-  device.close();
+  close(): void {
+    this.device.close();
+  }
+
+  [Symbol.dispose](): void {
+    this.close();
+  }
+}
+
+const withLitra = <T>(action: (litra: Litra) => T): T => {
+  const litra = new Litra();
+  try {
+    return action(litra);
+  } finally {
+    litra.close();
+  }
 };
+
+export const turnOn = (): void => withLitra((litra) => litra.on());
+export const turnOff = (): void => withLitra((litra) => litra.off());
+export const setBrightness = (level: number): void =>
+  withLitra((litra) => litra.setBrightness(level));
+export const setTemperature = (temp: number): void =>
+  withLitra((litra) => litra.setTemperature(temp));
