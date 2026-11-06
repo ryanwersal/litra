@@ -1,5 +1,13 @@
 #!/usr/bin/env bun
+import { createRequire } from "node:module";
 import { Litra } from "../litra/lib/index.js";
+
+// Resolve the library's dependency and force its lazy native binding to load.
+// Litra wraps constructor errors, including binding failures, as a missing device.
+const require = createRequire(
+  new URL("../litra/lib/index.js", import.meta.url),
+);
+require("node-hid").devices();
 
 try {
   const litra = new Litra();
