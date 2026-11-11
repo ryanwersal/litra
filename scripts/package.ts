@@ -34,15 +34,15 @@ const packages: PackageCheck[] = [
 ];
 
 const packFiles = async (directory: string): Promise<Set<string>> => {
-  const process = Bun.spawn(["bun", "pm", "pack", "--dry-run"], {
+  const child = Bun.spawn(["bun", "pm", "pack", "--dry-run"], {
     cwd: directory,
     stdout: "pipe",
     stderr: "pipe",
   });
   const [stdout, stderr, exitCode] = await Promise.all([
-    new Response(process.stdout).text(),
-    new Response(process.stderr).text(),
-    process.exited,
+    new Response(child.stdout).text(),
+    new Response(child.stderr).text(),
+    child.exited,
   ]);
   if (exitCode !== 0) {
     throw new Error(

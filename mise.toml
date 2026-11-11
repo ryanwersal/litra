@@ -1,6 +1,6 @@
 [tools]
-bun = "1.3"
-node = "22"
+bun = "1.4"
+node = "26"
 gh = "latest"
 
 [tasks.install]
