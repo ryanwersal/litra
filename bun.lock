@@ -13,14 +13,14 @@
     },
     "litra": {
       "name": "@ryanwersal/litra",
-      "version": "0.0.4",
+      "version": "0.1.0",
       "dependencies": {
         "node-hid": "^3.4.0",
       },
     },
     "litra-cli": {
       "name": "@ryanwersal/litra-cli",
-      "version": "0.0.4",
+      "version": "0.1.0",
       "bin": {
         "litra": "bin/run",
       },

@@ -108,17 +108,11 @@ console.log(`Publishing ${tag} from ${await $`git rev-parse HEAD`.text()}`);
 await verifyRelease();
 
 const archiveDirectory = await mkdtemp(join(tmpdir(), "litra-release-"));
-const libraryFilename = `litra-${current}.tgz`;
-const cliFilename = `litra-cli-${current}.tgz`;
-const libraryArchive = join(archiveDirectory, libraryFilename);
-const cliArchive = join(archiveDirectory, cliFilename);
+const libraryArchive = join(archiveDirectory, `litra-${current}.tgz`);
+const cliArchive = join(archiveDirectory, `litra-cli-${current}.tgz`);
 
-await $`bun pm pack --destination ${archiveDirectory} --filename ${libraryFilename}`.cwd(
-  "litra",
-);
-await $`bun pm pack --destination ${archiveDirectory} --filename ${cliFilename}`.cwd(
-  "litra-cli",
-);
+await $`bun pm pack --filename ${libraryArchive}`.cwd("litra");
+await $`bun pm pack --filename ${cliArchive}`.cwd("litra-cli");
 
 await $`npm publish ${libraryArchive} --access public --provenance`;
 
