@@ -1,0 +1,41 @@
+name: Release
+
+on:
+  workflow_dispatch:
+
+concurrency:
+  group: npm-release
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  release:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      id-token: write
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - name: Install USB/HID build headers
+        run: sudo apt-get update && sudo apt-get install -y libudev-dev
+      - name: Set up tools via mise
+        uses: jdx/mise-action@v4
+      - name: Install npm with trusted publishing support
+        run: npm install --global npm@11.16.0
+      - name: Install dependencies
+        run: mise run install
+      - name: Check release candidate
+        run: mise run ci
+      - name: Configure release author
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+      - name: Release using npm OIDC
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: mise run release current

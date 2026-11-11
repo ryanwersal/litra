@@ -37,5 +37,5 @@ description = "Run lint, build, tests, and the native smoke check"
 depends = ["lint", "build", "test", "smoke"]
 
 [tasks.release]
-description = "Bump versions, build, tag, and publish (usage: mise run release <major|minor|patch>)"
+description = "Prepare a version bump or publish current from Actions (major|minor|patch|current)"
 run = "bun scripts/release.ts {{arg(name='level')}}"
