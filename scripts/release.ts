@@ -61,6 +61,8 @@ await $`git tag ${tag}`;
 await $`bun publish`.cwd("litra");
 await $`bun publish`.cwd("litra-cli");
 await $`git push --follow-tags`;
+// --follow-tags only includes annotated tags; release tags are lightweight.
+await $`git push origin ${tag}`;
 await $`gh release create ${tag} --verify-tag --title ${tag} --generate-notes`;
 
 console.log(`Published ${tag}`);
