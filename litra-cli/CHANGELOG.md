@@ -1,5 +1,11 @@
 # @ryanwersal/litra-cli
 
+## Unreleased
+
+- Validate command-line and persisted settings before touching the device.
+- Reject ignored extra positional arguments and preserve cleanup on errors.
+- Verify the executable and exclude compiler caches from the package.
+
 ## 0.0.4
 
 ### Patch Changes

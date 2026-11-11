@@ -38,6 +38,25 @@ it("merges partial stored settings over defaults", async () => {
   expect(await loadSettings()).toEqual({ brightness: 10, temperature: 3000 });
 });
 
+it("uses defaults for invalid stored fields", async () => {
+  files.set(
+    settingsFile,
+    JSON.stringify({ brightness: "bright", temperature: 7000 }),
+  );
+  expect(await loadSettings()).toEqual(defaultSettings);
+
+  files.set(
+    settingsFile,
+    JSON.stringify({ brightness: 80, temperature: 3000.5 }),
+  );
+  expect(await loadSettings()).toEqual({ brightness: 80, temperature: 3000 });
+});
+
+it("uses defaults when stored settings are not an object", async () => {
+  files.set(settingsFile, "null");
+  expect(await loadSettings()).toEqual(defaultSettings);
+});
+
 it("falls back to defaults when the stored file is corrupt", async () => {
   files.set(settingsFile, "not json");
   expect(await loadSettings()).toEqual(defaultSettings);

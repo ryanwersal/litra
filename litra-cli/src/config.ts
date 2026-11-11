@@ -9,6 +9,18 @@ export interface Settings {
 
 export const defaultSettings: Settings = { brightness: 50, temperature: 3000 };
 
+export const isBrightness = (value: unknown): value is number =>
+  typeof value === "number" &&
+  Number.isInteger(value) &&
+  value >= 1 &&
+  value <= 100;
+
+export const isTemperature = (value: unknown): value is number =>
+  typeof value === "number" &&
+  Number.isInteger(value) &&
+  value >= 2700 &&
+  value <= 6500;
+
 const settingsPath = (): string => {
   const base = process.env.XDG_CONFIG_HOME ?? join(homedir(), ".config");
   return join(base, "litra", "settings.json");
@@ -16,8 +28,24 @@ const settingsPath = (): string => {
 
 export const loadSettings = async (): Promise<Settings> => {
   try {
-    const stored = JSON.parse(await readFile(settingsPath(), "utf8"));
-    return { ...defaultSettings, ...stored };
+    const stored: unknown = JSON.parse(await readFile(settingsPath(), "utf8"));
+    if (
+      typeof stored !== "object" ||
+      stored === null ||
+      Array.isArray(stored)
+    ) {
+      return { ...defaultSettings };
+    }
+
+    const values = stored as Record<string, unknown>;
+    return {
+      brightness: isBrightness(values.brightness)
+        ? values.brightness
+        : defaultSettings.brightness,
+      temperature: isTemperature(values.temperature)
+        ? values.temperature
+        : defaultSettings.temperature,
+    };
   } catch {
     return { ...defaultSettings };
   }

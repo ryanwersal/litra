@@ -1,6 +1,12 @@
 import { parseArgs } from "node:util";
 import { Litra } from "@ryanwersal/litra";
-import { loadSettings, type Settings, saveSettings } from "./config";
+import {
+  isBrightness,
+  isTemperature,
+  loadSettings,
+  type Settings,
+  saveSettings,
+} from "./config";
 
 const usage = `litra — control a Logitech Litra Glow
 
@@ -13,10 +19,17 @@ Options:
   -t, --temperature  Colour temperature in Kelvin (2700-6500)
   -h, --help         Show this help`;
 
-const parseInteger = (name: string, raw: string): number => {
+const parseInteger = (
+  name: string,
+  raw: string,
+  isValid: (value: unknown) => value is number,
+  range: string,
+): number => {
   const value = Number(raw);
-  if (!Number.isInteger(value)) {
-    throw new Error(`--${name} must be an integer, received "${raw}"`);
+  if (!isValid(value)) {
+    throw new Error(
+      `--${name} must be an integer between ${range}, received "${raw}"`,
+    );
   }
   return value;
 };
@@ -30,11 +43,21 @@ const runOn = async (flags: {
     brightness:
       flags.brightness === undefined
         ? stored.brightness
-        : parseInteger("brightness", flags.brightness),
+        : parseInteger(
+            "brightness",
+            flags.brightness,
+            isBrightness,
+            "1 and 100",
+          ),
     temperature:
       flags.temperature === undefined
         ? stored.temperature
-        : parseInteger("temperature", flags.temperature),
+        : parseInteger(
+            "temperature",
+            flags.temperature,
+            isTemperature,
+            "2700 and 6500",
+          ),
   };
 
   using litra = new Litra();
@@ -65,6 +88,11 @@ export const run = async (argv: string[]): Promise<void> => {
   if (values.help || command === undefined) {
     console.log(usage);
     return;
+  }
+  if (positionals.length > 1) {
+    throw new Error(
+      `Unexpected argument "${positionals[1]}". Run \`litra --help\`.`,
+    );
   }
 
   switch (command) {

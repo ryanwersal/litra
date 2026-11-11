@@ -18,8 +18,23 @@ const report = (...payload: number[]): number[] => {
 const scaleBrightness = (level: number): number =>
   Math.floor(minBrightness + (level / 100) * (maxBrightness - minBrightness));
 
+const validateBrightness = (level: number): void => {
+  if (!Number.isInteger(level) || level < 1 || level > 100) {
+    throw new RangeError("Brightness must be an integer between 1 and 100.");
+  }
+};
+
+const validateTemperature = (temp: number): void => {
+  if (!Number.isInteger(temp) || temp < 2700 || temp > 6500) {
+    throw new RangeError(
+      "Temperature must be an integer between 2700 and 6500.",
+    );
+  }
+};
+
 export class Litra implements Disposable {
   private readonly device: HID;
+  private closed = false;
 
   constructor() {
     try {
@@ -38,26 +53,22 @@ export class Litra implements Disposable {
   }
 
   setBrightness(level: number): void {
-    if (!Number.isInteger(level) || level < 1 || level > 100) {
-      throw new RangeError("Brightness must be an integer between 1 and 100.");
-    }
+    validateBrightness(level);
     this.device.write(
       report(0x11, 0xff, 0x04, 0x4c, 0x00, scaleBrightness(level)),
     );
   }
 
   setTemperature(temp: number): void {
-    if (!Number.isInteger(temp) || temp < 2700 || temp > 6500) {
-      throw new RangeError(
-        "Temperature must be an integer between 2700 and 6500.",
-      );
-    }
+    validateTemperature(temp);
     this.device.write(
       report(0x11, 0xff, 0x04, 0x9c, (temp >> 8) & 0xff, temp & 0xff),
     );
   }
 
   close(): void {
+    if (this.closed) return;
+    this.closed = true;
     this.device.close();
   }
 
@@ -77,7 +88,11 @@ const withLitra = <T>(action: (litra: Litra) => T): T => {
 
 export const turnOn = (): void => withLitra((litra) => litra.on());
 export const turnOff = (): void => withLitra((litra) => litra.off());
-export const setBrightness = (level: number): void =>
+export const setBrightness = (level: number): void => {
+  validateBrightness(level);
   withLitra((litra) => litra.setBrightness(level));
-export const setTemperature = (temp: number): void =>
+};
+export const setTemperature = (temp: number): void => {
+  validateTemperature(temp);
   withLitra((litra) => litra.setTemperature(temp));
+};

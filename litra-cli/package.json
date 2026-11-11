@@ -29,6 +29,8 @@
   },
   "files": [
     "bin",
+    "CHANGELOG.md",
+    "LICENSE",
     "lib"
   ],
   "scripts": {

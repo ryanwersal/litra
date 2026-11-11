@@ -2,22 +2,28 @@ import { afterEach, beforeEach, expect, it, mock, spyOn } from "bun:test";
 import { files, mockFs, restoreEnv, stubEnv } from "./testing";
 
 const calls: string[] = [];
+let failingAction: string | undefined;
+
+const record = (action: string): void => {
+  calls.push(action);
+  if (action === failingAction) throw new Error(`failed to ${action}`);
+};
 
 class FakeLitra {
   on() {
-    calls.push("on");
+    record("on");
   }
   off() {
-    calls.push("off");
+    record("off");
   }
   setBrightness(level: number) {
-    calls.push(`brightness:${level}`);
+    record(`brightness:${level}`);
   }
   setTemperature(temp: number) {
-    calls.push(`temperature:${temp}`);
+    record(`temperature:${temp}`);
   }
   close() {
-    calls.push("close");
+    record("close");
   }
   [Symbol.dispose]() {
     this.close();
@@ -32,6 +38,7 @@ const { loadSettings } = await import("./config");
 
 beforeEach(() => {
   calls.length = 0;
+  failingAction = undefined;
   files.clear();
   stubEnv("XDG_CONFIG_HOME", "/config");
 });
@@ -72,11 +79,35 @@ it("prints usage and touches no device with --help", async () => {
   log.mockRestore();
 });
 
-it("does not persist settings when a flag is invalid", async () => {
-  expect(run(["on", "-b", "abc"])).rejects.toThrow();
+it("rejects invalid flags before opening or persisting", async () => {
+  for (const args of [
+    ["on", "-b", "abc"],
+    ["on", "-b", "0"],
+    ["on", "-b", "1.5"],
+    ["on", "-t", "6501"],
+  ]) {
+    await expect(run(args)).rejects.toThrow();
+  }
+  expect(calls).toEqual([]);
   expect(files.size).toBe(0);
 });
 
-it("rejects unknown commands", () => {
-  expect(run(["frobnicate"])).rejects.toThrow();
+it("closes the device and does not persist after a device error", async () => {
+  failingAction = "temperature:5000";
+  await expect(run(["on", "-b", "80", "-t", "5000"])).rejects.toThrow(
+    "failed to temperature:5000",
+  );
+  expect(calls).toEqual(["on", "brightness:80", "temperature:5000", "close"]);
+  expect(files.size).toBe(0);
+});
+
+it("rejects unknown commands", async () => {
+  await expect(run(["frobnicate"])).rejects.toThrow();
+});
+
+it("rejects extra positional arguments", async () => {
+  await expect(run(["on", "unexpected"])).rejects.toThrow(
+    'Unexpected argument "unexpected"',
+  );
+  expect(calls).toEqual([]);
 });

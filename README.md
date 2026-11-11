@@ -12,10 +12,13 @@ Tooling and tasks are managed with [mise](https://mise.jdx.dev) ([Bun](https://b
 ```sh
 mise install            # provision Bun and Node
 mise run install        # install dependencies
-mise run ci             # lint, build, test, and native HID smoke check
+mise run ci             # lint, build, test, package, and native HID checks
 mise run release minor  # cut a release (major | minor | patch)
 ```
 
 Linting and formatting use [Biome](https://biomejs.dev) (`mise run lint` / `mise run format`); tests use `bun test`.
 
 `mise run install` reinstalls dependencies from the frozen lockfile and runs trusted lifecycle scripts, restoring native HID bindings even if a cached installation is incomplete. Use `bun add` or `bun update` when intentionally changing dependencies and commit the updated lockfile.
+
+See [`DEPENDENCY_NOTES.md`](./DEPENDENCY_NOTES.md) for the dependency choices
+made in the latest maintenance pass.

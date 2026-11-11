@@ -3,7 +3,7 @@
   "compilerOptions": {
     "rootDir": "src",
     "outDir": "lib",
-    "tsBuildInfoFile": "lib/.tsbuildinfo"
+    "tsBuildInfoFile": "../.cache/litra-cli.tsbuildinfo"
   },
   "references": [{ "path": "../litra" }],
   "include": ["src/**/*.ts"],

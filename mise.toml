@@ -29,13 +29,18 @@ description = "Remove build output"
 run = "bun run clean"
 
 [tasks.smoke]
-description = "Load the real native node-hid binding through the built library"
+description = "Load the CommonJS package and native HID binding in Bun and Node"
 depends = ["build"]
-run = "bun scripts/smoke.ts"
+run = "bun scripts/smoke.mjs && node scripts/smoke.mjs"
+
+[tasks.package]
+description = "Verify both publishable package archives and the CLI executable"
+depends = ["build"]
+run = "bun run package"
 
 [tasks.ci]
-description = "Run lint, build, tests, and the native smoke check"
-depends = ["lint", "build", "test", "smoke"]
+description = "Run lint, build, tests, package checks, and the native smoke check"
+depends = ["lint", "build", "test", "package", "smoke"]
 
 [tasks.release]
 description = "Bump versions, build, tag, and publish (usage: mise run release <major|minor|patch>)"
