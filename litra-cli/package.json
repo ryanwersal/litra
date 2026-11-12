@@ -38,6 +38,6 @@
     "test": "bun test"
   },
   "dependencies": {
-    "@ryanwersal/litra": "workspace:^"
+    "@ryanwersal/litra": "^0.1.0"
   }
 }

@@ -25,7 +25,7 @@
         "litra": "bin/run",
       },
       "dependencies": {
-        "@ryanwersal/litra": "workspace:^",
+        "@ryanwersal/litra": "^0.1.0",
       },
     },
   },
